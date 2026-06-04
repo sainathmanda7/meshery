@@ -197,7 +197,7 @@ const ModelContents = ({ modelDef }: { modelDef: any }) => {
   };
   const orderRight = ['category', 'duplicates', 'relationships'];
   const orderdMetadataRight = reorderObjectProperties(metaDataRight, orderRight);
-  const isShowStatusSelector = !Array.isArray(modelDef?.model.version);
+  const isShowStatusSelector = !Array.isArray(modelDef?.model?.version);
 
   return (
     <div>
@@ -287,7 +287,15 @@ const ComponentContents = ({ componentDef }: { componentDef: any }) => {
               iconSrc={componentData?.styles?.svgColor}
             />
           </div>
-          <Description description={JSON.parse(componentData?.component?.schema)?.description} />
+          <Description
+            description={(() => {
+              try {
+                return JSON.parse(componentData?.component?.schema)?.description;
+              } catch {
+                return undefined;
+              }
+            })()}
+          />
           <RenderContents
             metaDataLeft={metaDataLeft}
             metaDataRight={metaDataRight}
@@ -314,9 +322,9 @@ const RelationshipContents = ({ relationshipDef }: { relationshipDef: any }) => 
   };
 
   const metaDataLeft = {
-    registrant: relationshipDef.model.registrant.name,
-    modelName: relationshipDef.model?.displayName,
-    version: relationshipDef.schemaVersion,
+    registrant: relationshipDef?.model?.registrant?.name,
+    modelName: relationshipDef?.model?.displayName,
+    version: relationshipDef?.schemaVersion,
   };
 
   const orderLeft = ['registrant', 'version'];
@@ -328,8 +336,8 @@ const RelationshipContents = ({ relationshipDef }: { relationshipDef: any }) => 
   };
 
   const metaDataRight = {
-    registrant: relationshipDef.model.registrant.hostname,
-    subType: relationshipDef.subType,
+    registrant: relationshipDef?.model?.registrant?.hostname,
+    subType: relationshipDef?.subType,
   };
 
   const orderRight = ['subType', 'registrant'];
@@ -338,7 +346,7 @@ const RelationshipContents = ({ relationshipDef }: { relationshipDef: any }) => 
   return (
     <div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <StyledTitle>{`${relationshipDef?.kind} :: ${relationshipDef.type} :: ${relationshipDef.subType}`}</StyledTitle>
+        <StyledTitle>{`${relationshipDef?.kind} :: ${relationshipDef?.type} :: ${relationshipDef?.subType}`}</StyledTitle>
         <Description description={relationshipDef?.metadata?.description} />
       </div>
       <RenderContents
@@ -413,7 +421,7 @@ const Description = ({ description }: { description?: string }) => {
       >
         Description
       </p>
-      <p style={{ margin: '0', fontSize: theme.typography.fontFamily }}>{description}</p>
+      <p style={{ margin: '0', fontSize: theme.typography.body2.fontSize }}>{description}</p>
     </div>
   );
 };
@@ -440,8 +448,8 @@ const StatusChip = ({ entityData, entityType }: { entityData: any; entityType: s
   const [updateEntityStatus] = useUpdateEntityStatusMutation();
   const { data: modelData, isSuccess } = useGetMeshModelsQuery({
     params: {
-      id: entityData.model.id,
-      version: entityData.model.version,
+      id: entityData?.model?.id,
+      version: entityData?.model?.version,
     },
   });
 

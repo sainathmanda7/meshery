@@ -24,7 +24,7 @@ import {
   Button,
   NoSsr,
   AddCircleIcon as AddIcon,
-  ExternalLinkIcon as LinkIcon,
+  ChainIcon as LinkIcon,
   FileUploadIcon as UploadIcon,
 } from '@sistent/sistent';
 import { iconSmall } from 'css/icons.styles';
@@ -98,7 +98,7 @@ const MeshModelComponent_ = ({
   const hasMoreComponents =
     componentsData?.totalCount > componentsData?.pageSize * componentsData?.page;
   const hasMoreRelationships =
-    componentsData?.totalCount > relationshipsData?.pageSize * relationshipsData?.page;
+    relationshipsData?.totalCount > relationshipsData?.pageSize * relationshipsData?.page;
 
   const loadNextModelsPage = useCallback(() => {
     if (modelsRes.isLoading || modelsRes.isFetching || !hasMoreModels) {
@@ -190,16 +190,15 @@ const MeshModelComponent_ = ({
         // Avoid appending data to the previous dataset.
         // preventing duplicate entries and ensuring the UI reflects the API's response accurately.
         // For instance, during a search, display the data returned by the API instead of appending it to the previous results.
-        let newData = [];
-        if (response.data[view.toLowerCase()]) {
-          newData =
-            searchText || view === RELATIONSHIPS
-              ? [...response.data[view.toLowerCase()]]
-              : [...resourcesDetail, ...response.data[view.toLowerCase()]];
-        }
+        const responseData = response.data[view.toLowerCase()];
 
-        // Set unique data
-        setResourcesDetail(_.uniqWith(newData, _.isEqual));
+        if (searchText || view === RELATIONSHIPS) {
+          // Replace data entirely for search/relationship views
+          setResourcesDetail(_.uniqWith([...responseData], _.isEqual));
+        } else {
+          // Append to existing data for paginated views (use functional form to avoid stale closure)
+          setResourcesDetail((prev) => _.uniqWith([...prev, ...responseData], _.isEqual));
+        }
 
         // Deeplink may contain higher rowsPerPage val for first time fetch
         // In such case set it to default as 14 after UI renders
@@ -219,11 +218,12 @@ const MeshModelComponent_ = ({
     getRegistrantsData,
     modelFilters,
     registrantFilters,
+    componentsFilters,
+    relationshipsFilters,
     view,
     page,
     rowsPerPage,
     searchText,
-    resourcesDetail,
     checked,
   ]);
 
@@ -258,7 +258,7 @@ const MeshModelComponent_ = ({
           },
           true,
         );
-        if (modelRes.models && modelRes.models.length > 0) {
+        if (modelRes?.models && modelRes.models.length > 0) {
           const updatedRegistrant = {
             ...registrant,
             models: removeDuplicateVersions(modelRes.models) || [],
@@ -329,7 +329,17 @@ const MeshModelComponent_ = ({
 
   useEffect(() => {
     fetchData();
-  }, [view, page, rowsPerPage, checked, searchText, modelFilters, registrantFilters]);
+  }, [
+    view,
+    page,
+    rowsPerPage,
+    checked,
+    searchText,
+    modelFilters,
+    registrantFilters,
+    componentsFilters,
+    relationshipsFilters,
+  ]);
 
   // Update view when external view changes (for modal usage)
   useEffect(() => {
@@ -518,7 +528,7 @@ const TabBar = ({ openImportModal, openCreateModal, view, openRelationshipModal 
             onClick={openRelationshipModal}
             style={{ display: 'flex' }}
             disabled={false}
-            startIcon={<LinkIcon />}
+            startIcon={<LinkIcon width="20" height="20" />}
             data-testid="TabBar-Button-CreateRelationship"
           >
             Create Relationship

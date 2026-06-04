@@ -1,13 +1,22 @@
 import React from "react";
 
-const ConnectionIcon = ({ width, height, fill="#ccc", primaryFill="#00B39F", secondaryFill="#00D3A9", style = {} }) => (
+const ConnectionIcon = ({ 
+  width, 
+  height, 
+  fill="#ccc", 
+  primaryFill="#00B39F", 
+  secondaryFill="#00D3A9", 
+  style = {},
+  ...props 
+}) => (
   <svg
     style={style}
     xmlns="http://www.w3.org/2000/svg"
     height={height}
     viewBox="0 0 18 19"
     width={width}
-    fill={fill}
+    fill="none"
+    {...props}
   >
     <g clipPath="url(#clip0_11326_34264)">
       <path

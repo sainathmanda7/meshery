@@ -66,7 +66,7 @@ const MesheryTreeView = React.memo(
       useRegistryRouter();
     const theme = useTheme();
 
-    const selectedItemUUID = externalSelectedItemUUID || routerSelectedItemUUID;
+    const selectedItemUUID = externalSelectedItemUUID || routerSelectedItemUUID || '';
     const [expanded, setExpanded] = React.useState<string[]>([]);
     const [selected, setSelected] = React.useState<string[]>([]);
     const { width } = useWindowDimensions();
@@ -78,14 +78,14 @@ const MesheryTreeView = React.memo(
     const scrollRef = useRef<number | null>(null);
 
     const handleScroll = (scrollingView: string) => (event: React.UIEvent<HTMLDivElement>) => {
-      const div = event.target;
+      const div = event.currentTarget;
       if (div.scrollTop >= div.scrollHeight - div.clientHeight - 1) {
         setPage((prevPage) => ({
           ...prevPage,
           [scrollingView]: Number(prevPage[scrollingView]) + 1,
         }));
       }
-      if (!data.length === 0) {
+      if (data.length !== 0) {
         scrollRef.current = div.scrollTop;
       }
     };
@@ -93,7 +93,9 @@ const MesheryTreeView = React.memo(
     useEffect(() => {
       if (scrollRef.current) {
         const div = document.querySelector('.scrollElement');
-        div.scrollTop = scrollRef.current;
+        if (div) {
+          div.scrollTop = scrollRef.current;
+        }
       }
     }, [data]);
 
@@ -324,7 +326,7 @@ const MesheryTreeView = React.memo(
           {renderHeader(type, !!data.length)}
           {data.length === 0 && !searchText ? (
             <JustifyAndAlignCenter style={{ height: '27rem' }}>
-              {isLoading || (data.length === 0 && !searchText) ? (
+              {isLoading ? (
                 <CircularProgress sx={{ color: theme.palette.primary.main }} />
               ) : (
                 <Typography>No {type.toLowerCase()} found</Typography>

@@ -11,6 +11,7 @@ import {
   ModelImportMessages,
 } from '@/components/layout/NotificationCenter/formatters/model_registration';
 import { ErrorMetadataFormatter } from '@/components/layout/NotificationCenter/formatters/error';
+import { Box, Typography } from '@sistent/sistent';
 
 const FinishModelGenerateStep = ({
   requestBody,
@@ -51,8 +52,12 @@ const FinishModelGenerateStep = ({
     return <Loading message={progressMessage} />;
   }
   if (error) {
-    return (
-      <ErrorMetadataFormatter metadata={generateEvent?.metadata.error} event={generateEvent} />
+    return generateEvent?.metadata?.error ? (
+      <ErrorMetadataFormatter metadata={generateEvent.metadata.error} event={generateEvent} />
+    ) : (
+      <Box sx={{ padding: '1rem', color: 'red' }}>
+        <Typography>An error occurred while generating the model. Please try again.</Typography>
+      </Box>
     );
   }
 
